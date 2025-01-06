@@ -8,7 +8,7 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "express": "^latest",
-    "node-fetch": "^latest"
+    "express": "^4.21.2",
+    "node-fetch": "^3.3.2"
   }
 }
