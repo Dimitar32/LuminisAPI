@@ -1,8 +1,8 @@
 import express from "express";
 import fetch from "node-fetch";
 import pool from "./db.js"; // Import the database connection
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+// import bcrypt from "bcrypt";
+// import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import cors from "cors";
 
