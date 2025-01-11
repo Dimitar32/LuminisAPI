@@ -153,4 +153,52 @@ app.post("/api/save-order", async (req, res) => {
     }
 });
 
+/**
+ * ✅ Update Order Status (Protected Route)
+ */
+app.put("/api/orders/:id", verifyToken, async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    try {
+        // Check if order exists
+        const order = await pool.query("SELECT * FROM orders WHERE id = $1", [id]);
+        if (order.rows.length === 0) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        // Update order status
+        await pool.query("UPDATE orders SET status = $1 WHERE id = $2", [status, id]);
+
+        res.json({ success: true, message: "Order status updated successfully" });
+    } catch (error) {
+        console.error("❌ Error updating order status:", error);
+        res.status(500).json({ success: false, message: "Failed to update order status" });
+    }
+});
+
+
+/**
+ * ✅ Delete Order (Protected Route)
+ */
+app.delete("/api/orders/:id", verifyToken, async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // Check if the order exists
+        const existingOrder = await pool.query("SELECT * FROM orders WHERE id = $1", [id]);
+        if (existingOrder.rows.length === 0) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        // Delete the order
+        await pool.query("DELETE FROM orders WHERE id = $1", [id]);
+
+        res.json({ success: true, message: "Order deleted successfully" });
+    } catch (error) {
+        console.error("❌ Error deleting order:", error);
+        res.status(500).json({ success: false, message: "Failed to delete order" });
+    }
+});
+
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
