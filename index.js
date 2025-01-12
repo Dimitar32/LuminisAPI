@@ -201,4 +201,17 @@ app.delete("/api/orders/:id", verifyToken, async (req, res) => {
     }
 });
 
+/**
+ * ✅ Get Product Quantities (Protected Route)
+ */
+app.get("/api/products-quantity", verifyToken, async (req, res) => {
+    try {
+        const result = await pool.query("SELECT id, brand, productname, quantity FROM products ORDER BY id ASC");
+        res.json({ success: true, products: result.rows });
+    } catch (error) {
+        console.error("❌ Error fetching product quantities:", error);
+        res.status(500).json({ success: false, message: "Failed to fetch product quantities" });
+    }
+});
+
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
