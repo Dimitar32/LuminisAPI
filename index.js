@@ -140,18 +140,47 @@ app.post("/api/save-order", async (req, res) => {
             return res.status(400).json({ success: false, message: "Missing required fields" });
         }
 
+        await pool.query("BEGIN");
+
+        // Deduct stock and check availability
+        for (const item of orderItems) {
+
+            const updateStock = await pool.query(
+                `UPDATE products 
+                 SET quantity = quantity - $1 ,
+                     updateDate = NOW()
+                 WHERE id = $2 AND quantity >= $1 
+                 RETURNING quantity`,
+                [item.quantity, item.id]
+            );
+
+            if (updateStock.rows.length === 0) {
+                await pool.query("ROLLBACK");
+                return res.status(400).json({
+                    success: false,
+                    message: `Not enough stock for ${item.name}. Available stock: 0`,
+                });
+            }
+        }
+
+        // FIX: Use proper JSON storage
         const result = await pool.query(
             `INSERT INTO orders (first_name, last_name, phone, address, city, note, order_items, created_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()) RETURNING *`,
+            VALUES ($1, $2, $3, $4, $5, $6, CAST($7 AS JSONB), NOW()) RETURNING *`,
             [firstName, lastName, phone, address, city, note, JSON.stringify(orderItems)]
         );
 
+        // FIX: Ensure the transaction is committed
+        await pool.query("COMMIT");
+
         res.status(201).json({ success: true, order: result.rows[0] });
     } catch (error) {
+        await pool.query("ROLLBACK");
         console.error("❌ Error saving order:", error);
         res.status(500).json({ success: false, message: "Failed to save order" });
     }
 });
+
 
 /**
  * ✅ Update Order Status (Protected Route)
