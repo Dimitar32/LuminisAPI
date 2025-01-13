@@ -15,6 +15,7 @@ const SECRET_KEY = process.env.JWT_SECRET;
 
 app.use(express.json());
 app.use(cors());
+app.use('/images', express.static('public/images'));
 
 // Email transporter for 2FA
 const transporter = nodemailer.createTransport({
@@ -240,6 +241,36 @@ app.get("/api/products-quantity", verifyToken, async (req, res) => {
     } catch (error) {
         console.error("❌ Error fetching product quantities:", error);
         res.status(500).json({ success: false, message: "Failed to fetch product quantities" });
+    }
+});
+
+app.get('/api/products', async (req, res) => {
+    try {
+        const { brand } = req.query; // Extract brand from query parameters
+
+        let query = 'SELECT * FROM products';
+        let values = [];
+
+        // If a brand is provided, filter by it
+        if (brand) {
+            query += ' WHERE brand = $1';
+            values.push(brand);
+        }
+
+        query += ' ORDER BY id ASC'; // Sort by ID by default
+
+        const result = await pool.query(query, values);
+
+        // Modify response to include full image URLs
+        const products = result.rows.map(product => ({
+            ...product,
+            imageUrl: `http://localhost:5000/images/${product.productname}.png`
+        }));
+
+        res.json({ success: true, products });
+    } catch (err) {
+        console.error("❌ Error fetching products:", err);
+        res.status(500).json({ message: "Error fetching products", error: err });
     }
 });
 
