@@ -264,7 +264,7 @@ app.get('/api/products', async (req, res) => {
         // Modify response to include full image URLs
         const products = result.rows.map(product => ({
             ...product,
-            imageUrl: `http://localhost:5000/images/${product.productname}.png`
+            imageUrl: `https://luminisapi.onrender.com/images/${product.productname}.png`
         }));
 
         res.json({ success: true, products });
