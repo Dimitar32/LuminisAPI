@@ -257,7 +257,7 @@ app.get('/api/products', async (req, res) => {
             values.push(brand);
         }
 
-        query += ' ORDER BY id ASC'; // Sort by ID by default
+        query += ' ORDER BY id ASC'; 
 
         const result = await pool.query(query, values);
 
