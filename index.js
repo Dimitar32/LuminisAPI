@@ -159,7 +159,7 @@ app.post("/api/save-order", async (req, res) => {
                 await pool.query("ROLLBACK");
                 return res.status(400).json({
                     success: false,
-                    message: `Not enough stock for ${item.name}. Available stock: 0`,
+                    message: `Няма достатъчно наличност от ${item.name}. Имаме налични: ${item.quantity}`,
                 });
             }
         }
