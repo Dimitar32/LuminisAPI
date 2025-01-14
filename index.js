@@ -274,4 +274,44 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
+app.post("/api/send-email", async (req, res) => {
+    const { firstName, lastName, phone, address, city, note, orderItems } = req.body;
+
+    try {
+        if (!firstName || !lastName || !phone || !orderItems.length) {
+            return res.status(400).json({ success: false, message: "Missing required fields" });
+        }
+
+        // Format the order details
+        const orderDetails = orderItems
+            .map(item => `Product: ${item.name}, Quantity: ${item.quantity}, Price: ${item.price.toFixed(2)} BGN`)
+            .join("\n");
+
+        // Email content
+        const emailContent = `
+            New Order Received!\n
+            Name: ${firstName} ${lastName}
+            Phone: ${phone}
+            Address: ${address}, ${city}
+            Note: ${note || "None"}
+            \nOrder Details:\n${orderDetails}
+        `;
+
+        // Configure Nodemailer Transporter
+        const mailOptions = {
+            from: process.env.EMAIL_FROM,
+            to: process.env.EMAIL_TO, 
+            subject: "New Order Received",
+            text: emailContent,
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        res.json({ success: true, message: "Email sent successfully" });
+    } catch (error) {
+        console.error("❌ Email sending failed:", error);
+        res.status(500).json({ success: false, message: "Failed to send email" });
+    }
+});
+
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
