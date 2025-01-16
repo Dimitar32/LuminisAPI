@@ -5,12 +5,6 @@ import pg from "pg";
 
 const { Pool } = pg;
 
-// Debugging: Log database credentials (without exposing the password)
-console.log("🔹 Connecting to PostgreSQL...");
-console.log("DB_HOST:", process.env.DB_HOST);
-console.log("DB_USER:", process.env.DB_USER);
-console.log("DB_NAME:", process.env.DB_NAME);
-
 const pool = new Pool({
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
