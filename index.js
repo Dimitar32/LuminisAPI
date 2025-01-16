@@ -211,6 +211,28 @@ app.put("/api/orders/:id", verifyToken, async (req, res) => {
 /**
  * ✅ Delete Order (Protected Route)
  */
+// app.delete("/api/orders/:id", verifyToken, async (req, res) => {
+//     const { id } = req.params;
+
+//     try {
+//         // Check if the order exists
+//         const existingOrder = await pool.query("SELECT * FROM orders WHERE id = $1", [id]);
+//         if (existingOrder.rows.length === 0) {
+//             return res.status(404).json({ success: false, message: "Order not found" });
+//         }
+
+//         // Delete the order
+//         await pool.query("DELETE FROM orders WHERE id = $1", [id]);
+
+//         res.json({ success: true, message: "Order deleted successfully" });
+//     } catch (error) {
+//         console.error("❌ Error deleting order:", error);
+//         res.status(500).json({ success: false, message: "Failed to delete order" });
+//     }
+// });
+/**
+ * ✅ Delete Order (Protected Route)
+ */
 app.delete("/api/orders/:id", verifyToken, async (req, res) => {
     const { id } = req.params;
 
@@ -221,10 +243,29 @@ app.delete("/api/orders/:id", verifyToken, async (req, res) => {
             return res.status(404).json({ success: false, message: "Order not found" });
         }
 
+        const order = existingOrder.rows[0];
+
+        // Check if the order is not shipped
+        if (order.status !== "shipped") {
+            // Parse the order_items JSON
+            const orderItems = JSON.parse(order.order_items);
+
+            // Restock each product
+            for (const item of orderItems) {
+                await pool.query(
+                    `UPDATE products
+                     SET quantity = quantity + $1,
+                         updateDate = NOW()
+                     WHERE id = $2`,
+                    [item.quantity, item.id]
+                );
+            }
+        }
+
         // Delete the order
         await pool.query("DELETE FROM orders WHERE id = $1", [id]);
 
-        res.json({ success: true, message: "Order deleted successfully" });
+        res.json({ success: true, message: "Order deleted successfully, and products restocked if applicable" });
     } catch (error) {
         console.error("❌ Error deleting order:", error);
         res.status(500).json({ success: false, message: "Failed to delete order" });
