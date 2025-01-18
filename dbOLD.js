@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-dotenv.config(); // Load environment variables
+dotenv.config(); 
 
 import pg from "pg";
 
@@ -9,7 +9,7 @@ const pool = new Pool({
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
     database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD, // Make sure this is correct
+    password: process.env.DB_PASSWORD, 
     port: process.env.DB_PORT,
     ssl: {
         rejectUnauthorized: false, // Allow self-signed certificates (for Render, AWS, etc.)
