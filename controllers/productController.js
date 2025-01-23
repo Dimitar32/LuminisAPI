@@ -42,13 +42,14 @@ export const getProducts = async (req, res) => {
 // Get product quantities
 export const getProductQuantities = async (req, res) => {
   try {
-    const result = await pool.query('SELECT id, brand, productname, quantity FROM products ORDER BY id ASC');
+    const result = await pool.query('SELECT id, brand, productname, quantity, discount_price, description FROM products ORDER BY brand ASC, id asc');
     res.json({ success: true, products: result.rows });
   } catch (error) {
     console.error('❌ Error fetching product quantities:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch product quantities' });
   }
 };
+
 // Get product details by ID
 export const getProductById = async (req, res) => {
   try {
@@ -72,5 +73,36 @@ export const getProductById = async (req, res) => {
   } catch (error) {
       console.error('Error fetching product by ID:', error);
       res.status(500).json({ success: false, message: 'Failed to fetch product' });
+  }
+};
+
+// Update product details
+export const updateProduct = async (req, res) => {
+  try {
+      const { id } = req.params; // Get product ID from route parameters
+      const { brand, productname, quantity, price, description } = req.body; // Get updated fields from request body
+
+      // Check if the product exists
+      const checkProductQuery = 'SELECT * FROM products WHERE id = $1';
+      const checkProductResult = await pool.query(checkProductQuery, [id]);
+
+      if (checkProductResult.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Product not found' });
+      }
+
+      // Update the product details
+      const updateQuery = `
+          UPDATE products 
+          SET brand = $1, productname = $2, quantity = $3, discount_price = $4, description = $5
+          WHERE id = $6
+          RETURNING *
+      `;
+      const values = [brand, productname, quantity, price, description, id];
+      const updateResult = await pool.query(updateQuery, values);
+
+      res.json({ success: true, product: updateResult.rows[0] });
+  } catch (error) {
+      console.error('❌ Error updating product:', error);
+      res.status(500).json({ success: false, message: 'Failed to update product' });
   }
 };
