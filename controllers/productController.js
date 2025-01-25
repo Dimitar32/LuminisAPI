@@ -106,3 +106,28 @@ export const updateProduct = async (req, res) => {
       res.status(500).json({ success: false, message: 'Failed to update product' });
   }
 };
+
+export const getSetOptions = async (req, res) => {
+  const { setId } = req.params;
+
+  try {
+    // Query the database to get products in the set
+    const setOptions = await pool.query(
+      `SELECT so.product_id, p.productname, p.price, p.quantity, p.id 
+       FROM Set_Options so
+       JOIN Products p ON so.product_id = p.id
+       WHERE so.set_product_id = $1 and p.quantity > 0`,
+      [setId]
+    );
+
+    // Check if set options exist
+    if (setOptions.rows.length === 0) {
+      return res.status(404).json({ message: 'Set options not found.' });
+    }
+
+    res.status(200).json(setOptions.rows);
+  } catch (error) {
+    console.error('Error fetching set options:', error);
+    res.status(500).json({ message: 'Failed to fetch set options.' });
+  }
+};
