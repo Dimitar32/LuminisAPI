@@ -34,7 +34,6 @@ export const getProducts = async (req, res) => {
 
     res.json({ success: true, products: productsWithImages });
   } catch (error) {
-    console.error('❌ Error fetching products:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch products' });
   }
 };
@@ -45,8 +44,29 @@ export const getProductQuantities = async (req, res) => {
     const result = await pool.query('SELECT id, brand, productname, quantity, discount_price, description FROM products ORDER BY brand ASC, id asc');
     res.json({ success: true, products: result.rows });
   } catch (error) {
-    console.error('❌ Error fetching product quantities:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch product quantities' });
+  }
+};
+
+// Get product details by ID
+export const getProductNameById = async (req, res) => {
+  try {
+      const { id } = req.params; // Get product ID from route parameters
+
+      // Fetch the product details
+      const productQuery = 'SELECT productname FROM products WHERE id = $1';
+
+      const productResult = await pool.query(productQuery, [id]);
+
+      if (productResult.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'Product not found' });
+      }
+
+      const product = productResult.rows[0];
+
+      res.json({ success: true, product });
+  } catch (error) {
+      res.status(500).json({ success: false, message: 'Failed to fetch product' });
   }
 };
 
@@ -71,7 +91,6 @@ export const getProductById = async (req, res) => {
 
       res.json({ success: true, product });
   } catch (error) {
-      console.error('Error fetching product by ID:', error);
       res.status(500).json({ success: false, message: 'Failed to fetch product' });
   }
 };
@@ -102,7 +121,6 @@ export const updateProduct = async (req, res) => {
 
       res.json({ success: true, product: updateResult.rows[0] });
   } catch (error) {
-      console.error('❌ Error updating product:', error);
       res.status(500).json({ success: false, message: 'Failed to update product' });
   }
 };
@@ -127,7 +145,6 @@ export const getSetOptions = async (req, res) => {
 
     res.status(200).json(setOptions.rows);
   } catch (error) {
-    console.error('Error fetching set options:', error);
     res.status(500).json({ message: 'Failed to fetch set options.' });
   }
 };

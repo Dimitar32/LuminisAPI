@@ -26,8 +26,7 @@ const pool = new Pool({
 // Test Database Connection
 pool.connect()
     .then(() => console.log("✅ Successfully connected to PostgreSQL"))
-    .catch((err) => {
-        console.error("❌ Database connection error:", err.message);
+    .catch(() => {
         process.exit(1); // Exit process on connection failure
     });
 

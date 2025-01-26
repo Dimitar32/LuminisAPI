@@ -59,7 +59,6 @@ app.post("/api/get-offices", async (req, res) => {
             return res.status(404).json({ success: false, message: "No offices found" });
         }
     } catch (error) {
-        console.error("❌ Error fetching Econt offices:", error);
         res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 });
@@ -92,7 +91,6 @@ app.post("/api/login", async (req, res) => {
 
       res.json({ success: true, token, message: "Login successful" });
   } catch (err) {
-      console.error("Login error:", err);
       res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
@@ -177,7 +175,6 @@ app.post("/api/save-order", async (req, res) => {
         res.status(201).json({ success: true, order: result.rows[0] });
     } catch (error) {
         await pool.query("ROLLBACK");
-        console.error("❌ Error saving order:", error);
         res.status(500).json({ success: false, message: "Failed to save order" });
     }
 });
@@ -202,7 +199,6 @@ app.put("/api/orders/:id", verifyToken, async (req, res) => {
 
         res.json({ success: true, message: "Order status updated successfully" });
     } catch (error) {
-        console.error("❌ Error updating order status:", error);
         res.status(500).json({ success: false, message: "Failed to update order status" });
     }
 });
@@ -226,7 +222,6 @@ app.put("/api/orders/:id", verifyToken, async (req, res) => {
 
 //         res.json({ success: true, message: "Order deleted successfully" });
 //     } catch (error) {
-//         console.error("❌ Error deleting order:", error);
 //         res.status(500).json({ success: false, message: "Failed to delete order" });
 //     }
 // });
@@ -267,7 +262,6 @@ app.delete("/api/orders/:id", verifyToken, async (req, res) => {
 
         res.json({ success: true, message: "Order deleted successfully, and products restocked if applicable" });
     } catch (error) {
-        console.error("❌ Error deleting order:", error);
         res.status(500).json({ success: false, message: "Failed to delete order" });
     }
 });
@@ -280,7 +274,6 @@ app.get("/api/products-quantity", verifyToken, async (req, res) => {
         const result = await pool.query("SELECT id, brand, productname, quantity FROM products ORDER BY id ASC");
         res.json({ success: true, products: result.rows });
     } catch (error) {
-        console.error("❌ Error fetching product quantities:", error);
         res.status(500).json({ success: false, message: "Failed to fetch product quantities" });
     }
 });
@@ -310,7 +303,6 @@ app.get('/api/products', async (req, res) => {
 
         res.json({ success: true, products });
     } catch (err) {
-        console.error("❌ Error fetching products:", err);
         res.status(500).json({ message: "Error fetching products", error: err });
     }
 });
@@ -350,7 +342,6 @@ app.post("/api/send-email", async (req, res) => {
 
         res.json({ success: true, message: "Email sent successfully" });
     } catch (error) {
-        console.error("❌ Email sending failed:", error);
         res.status(500).json({ success: false, message: "Failed to send email" });
     }
 });

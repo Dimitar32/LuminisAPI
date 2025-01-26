@@ -18,6 +18,6 @@ const pool = new Pool({
 
 pool.connect()
     .then(() => console.log("✅ Successfully connected to PostgreSQL"))
-    .catch(err => console.error("❌ Database connection error:", err));
+    .catch();
 
 export default pool;

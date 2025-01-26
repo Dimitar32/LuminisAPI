@@ -28,7 +28,6 @@ export const getEcontOffices = async (req, res) => {
       return res.status(404).json({ success: false, message: 'No offices found' });
     }
   } catch (error) {
-    console.error('❌ Error fetching Econt offices:', error);
     res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 };
