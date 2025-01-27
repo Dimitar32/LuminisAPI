@@ -99,7 +99,7 @@ export const getProductById = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
       const { id } = req.params; // Get product ID from route parameters
-      const { brand, productname, quantity, price, description } = req.body; // Get updated fields from request body
+      const { brand, productname, quantity, discount_price, description } = req.body; // Get updated fields from request body
 
       // Check if the product exists
       const checkProductQuery = 'SELECT * FROM products WHERE id = $1';
@@ -116,10 +116,10 @@ export const updateProduct = async (req, res) => {
           WHERE id = $6
           RETURNING *
       `;
-      const values = [brand, productname, quantity, price, description, id];
+      const values = [brand, productname, quantity, discount_price, description, id];
       const updateResult = await pool.query(updateQuery, values);
 
-      res.json({ success: true, product: updateResult.rows[0] });
+      return res.json({ success: true, product: updateResult.rows[0] });
   } catch (error) {
       res.status(500).json({ success: false, message: 'Failed to update product' });
   }
